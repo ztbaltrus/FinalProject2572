@@ -7,87 +7,87 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
+import java.util.LinkedList;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class EventClass extends FinalProjectSBController{
-	private static String type;
-	private static String venueName;
-	private static String preformanceName;
-	private static String displayName;
-	private static Object popularity;
-	private static Object date;
-	private static HashMap<Integer, EventClass> eventMap = new HashMap<Integer, EventClass>(50);
+	private String type;
+	private String venueName;
+	private String preformanceName;
+	private String displayName;
+	private Object popularity;
+	private Object date;
+	private static LinkedList<EventClass> eventArray = new LinkedList<EventClass>();
 	private static String APIKey = new String("xVIIgyI7NpxazqrQ");
 	
+	public EventClass() {
+		
+	}
 	
 	public EventClass(String eventType, String eventVenueName, String eventPerformanceName, String eventDisplayName,
 			Object eventPopularity, Object eventDate) {
-		eventType = type;
-		eventVenueName = venueName;
-		eventPerformanceName = preformanceName;
-		eventDisplayName = displayName;
-		eventPopularity = popularity;
-		eventDate = date;
+		this.type = eventType;
+		this.venueName = eventVenueName;
+		this.preformanceName = eventPerformanceName;
+		this.displayName = eventDisplayName;
+		this.popularity = eventPopularity;
+		this.date = eventDate;
 	}
-	public static String getType() {
+	public String getType() {
 		return type;
 	}
-	public static void setType(String type) {
-		EventClass.type = type;
+	public void setType(String type) {
+		this.type = type;
 	}
-	public static String getVenueName() {
+	public  String getVenueName() {
 		return venueName;
 	}
-	public static void setVenueName(String venueName) {
-		EventClass.venueName = venueName;
+	public void setVenueName(String venueName) {
+		this.venueName = venueName;
 	}
-	public static String getPreformanceName() {
+	public String getPreformanceName() {
 		return preformanceName;
 	}
-	public static void setPreformanceName(String preformanceName) {
-		EventClass.preformanceName = preformanceName;
+	public void setPreformanceName(String preformanceName) {
+		this.preformanceName = preformanceName;
 	}
 	public String getDisplayName() {
 		return displayName;
 	}
-	public static void setDisplayName(String displayName) {
-		EventClass.displayName = displayName;
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
 	}
-	public static Object getPopularity() {
+	public Object getPopularity() {
 		return popularity;
 	}
-	public static void setPopularity(Object popularity) {
-		EventClass.popularity = popularity;
+	public void setPopularity(Object popularity) {
+		this.popularity = popularity;
 	}
-	public static Object getDate() {
+	public Object getDate() {
 		return date;
 	}
-	public static void setDate(Object date) {
-		EventClass.date = date;
+	public void setDate(Object date) {
+		this.date = date;
 	}
-	public static HashMap<Integer, EventClass> getEventMap() {
-		return eventMap;
+	public LinkedList<EventClass> getEventArray() {
+		return eventArray;
 	}
-	public static void setEventMap(HashMap<Integer, EventClass> locationSet) {
-		EventClass.eventMap = locationSet;
+	public void setEventArray(LinkedList<EventClass> locationSet) {
+		EventClass.eventArray = locationSet;
 	}
-	public static String getAPIKey() {
+	public String getAPIKey() {
 		return APIKey;
 	}
 	public static void setAPIKey(String aPIKey) {
 		APIKey = aPIKey;
 	}
-	public static void apiEventSearch() {
+	public void apiEventSearch() {
 		HttpURLConnection connection = null;
 		BufferedReader reader = null;
+		eventArray.clear();
 		
 		try {
 			URL url = new URL("http://api.songkick.com/api/3.0/metro_areas/" + LocationClass.getAreaID().toString() + "/calendar.json?apikey=" + APIKey);
@@ -111,7 +111,10 @@ public class EventClass extends FinalProjectSBController{
 			JSONObject resultsPage = parentJSON.getJSONObject("resultsPage");
 			JSONObject results = resultsPage.getJSONObject("results");
 			JSONArray event = results.getJSONArray("event");
-			for(int j=0; j <= event.length(); j++) {
+			for(int j=0; j < event.length(); j++) {
+				
+				EventClass eventObject = new EventClass();
+				
 				JSONObject eventSearch = event.getJSONObject(j);
 				JSONObject venue = eventSearch.getJSONObject("venue");
 				JSONArray performance = eventSearch.getJSONArray("performance");
@@ -119,25 +122,22 @@ public class EventClass extends FinalProjectSBController{
 				JSONObject start = eventSearch.getJSONObject("start");
 				
 				String eventType = eventSearch.getString("type");
-				EventClass.setType(eventType);
+				eventObject.setType(eventType);
 				Object eventPopularity = eventSearch.get("popularity");
-				EventClass.setPopularity(eventPopularity);
+				eventObject.setPopularity(eventPopularity);
 				String eventDisplayName = eventSearch.getString("displayName");
-				EventClass.setDisplayName(eventDisplayName);
+				eventObject.setDisplayName(eventDisplayName);
 				
 				String eventVenueName = venue.getString("displayName");
-				EventClass.setVenueName(eventVenueName);
+				eventObject.setVenueName(eventVenueName);
 				
 				String eventPerformanceName = performanceSearch.getString("displayName");
-				EventClass.setPreformanceName(eventPerformanceName);
+				eventObject.setPreformanceName(eventPerformanceName);
 				
 				Object eventDate = start.get("date");
-				EventClass.setDate(eventDate);
+				eventObject.setDate(eventDate);
 				
-				
-				EventClass eventObject = new EventClass(eventType, eventVenueName, eventPerformanceName, eventDisplayName, eventPopularity, eventDate);
-				
-				eventMap.put(j, eventObject);
+				eventArray.add(eventObject);
 			}
 			connection.disconnect();
 			
